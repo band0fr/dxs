@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IP Verification System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            padding: 20px;
+            margin-top: 50px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: 250px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>IP Address Verification</h1>
+        <p>Enter your Discord User ID to verify your IP address:</p>
+        <input type="text" id="userId" placeholder="Enter your Discord User ID">
+        <button onclick="verifyIP()">Verify</button>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        const predefinedIP = "123.45.67.89"; // Replace with your IP address
+
+        function verifyIP() {
+            const userId = document.getElementById('userId').value;
+            const resultDiv = document.getElementById('result');
+
+            if (!userId) {
+                resultDiv.innerText = "Please enter your Discord User ID.";
+                resultDiv.style.color = "red";
+                return;
+            }
+
+            // Fetch the user's IP address
+            fetch('https://api.ipify.org?format=json')
+                .then(response => response.json())
+                .then(data => {
+                    const userIP = data.ip;
+
+                    if (userIP === predefinedIP) {
+                        resultDiv.innerText = `Access Granted! Your IP address is: ${userIP}`;
+                        resultDiv.style.color = "green";
+                    } else {
+                        resultDiv.innerText = "Access Denied. Your IP address does not match the predefined value.";
+                        resultDiv.style.color = "red";
+                    }
+                })
+                .catch(error => {
+                    resultDiv.innerText = "Error fetching your IP address. Please try again.";
+                    resultDiv.style.color = "red";
+                    console.error('Error:', error);
+                });
+        }
+    </script>
+</body>
+</html>
