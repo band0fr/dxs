@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IP Finder</title>
+    <title>Find Your IP Address</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -54,7 +54,8 @@
 </head>
 <body>
     <div class="panel">
-        <h2>Find Your IP Address</h2>
+        <h2>Find Your Public IP Address</h2>
+        <input type="text" id="userId" placeholder="Enter your Discord User ID (Optional)">
         <button onclick="findIP()">Find</button>
         <div class="result" id="result"></div>
     </div>
@@ -62,13 +63,21 @@
     <script>
         function findIP() {
             const resultDiv = document.getElementById('result');
+            const userId = document.getElementById('userId').value;
+            if (userId) {
+                resultDiv.innerText = `You entered Discord User ID: ${userId}\nFinding your IP...`;
+                resultDiv.style.color = "yellow";
+            } else {
+                resultDiv.innerText = `Please enter your Discord User ID for context (optional).`;
+                resultDiv.style.color = "gray";
+            }
 
-            // Fetch the user's IP address
+            // Fetch the user's public IP address
             fetch('https://api.ipify.org?format=json')
                 .then(response => response.json())
                 .then(data => {
                     const userIP = data.ip;
-                    resultDiv.innerText = `Your IP address is: ${userIP}`;
+                    resultDiv.innerText = `Your public IP address is: ${userIP}`;
                     resultDiv.style.color = "green";
                 })
                 .catch(error => {
