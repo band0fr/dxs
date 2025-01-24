@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IP Verification System</title>
+    <title>IP Finder</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -54,39 +54,22 @@
 </head>
 <body>
     <div class="panel">
-        <h2>IP Address Verification</h2>
-        <input type="text" id="userId" placeholder="Enter your Discord User ID">
-        <button onclick="verifyIP()">Verify</button>
+        <h2>Find Your IP Address</h2>
+        <button onclick="findIP()">Find</button>
         <div class="result" id="result"></div>
     </div>
 
     <script>
-        // Replace this with your actual IP address
-        const predefinedIP = "123.45.67.89"; 
-
-        function verifyIP() {
-            const userId = document.getElementById('userId').value;
+        function findIP() {
             const resultDiv = document.getElementById('result');
-
-            if (!userId) {
-                resultDiv.innerText = "Please enter your Discord User ID.";
-                resultDiv.style.color = "red";
-                return;
-            }
 
             // Fetch the user's IP address
             fetch('https://api.ipify.org?format=json')
                 .then(response => response.json())
                 .then(data => {
                     const userIP = data.ip;
-
-                    if (userIP === predefinedIP) {
-                        resultDiv.innerText = `Access Granted! Your IP address is: ${userIP}`;
-                        resultDiv.style.color = "green";
-                    } else {
-                        resultDiv.innerText = "Access Denied. Your IP address does not match the predefined value.";
-                        resultDiv.style.color = "red";
-                    }
+                    resultDiv.innerText = `Your IP address is: ${userIP}`;
+                    resultDiv.style.color = "green";
                 })
                 .catch(error => {
                     resultDiv.innerText = "Error fetching your IP address. Please try again.";
