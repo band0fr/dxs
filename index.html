@@ -34,60 +34,46 @@
         .info span {
             font-weight: bold;
         }
-        button {
-            padding: 10px 20px;
-            background-color: #007BFF;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-            font-size: 1rem;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
     </style>
 </head>
 <body>
     <div class="panel">
         <h2>Your IP Information</h2>
-        <button onclick="fetchIPInfo()">Get My IP Info</button>
-        <div class="info" id="result"></div>
+        <div class="info" id="result">Loading your data...</div>
     </div>
 
     <script>
-        function fetchIPInfo() {
-            const resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = 'Loading...';
+        // Fetch public IP address using ipify API
+        fetch('https://api.ipify.org?format=json')
+            .then(response => response.json())
+            .then(data => {
+                const ip = data.ip;
 
-            // Fetch public IP address using ipify
-            fetch('https://api.ipify.org?format=json')
-                .then(response => response.json())
-                .then(data => {
-                    const ip = data.ip;
+                // Fetch additional information (location, city, region, etc.) using ipinfo.io API
+                return fetch(`https://ipinfo.io/${ip}/json?token=YOUR_TOKEN_HERE`);
+            })
+            .then(response => response.json())
+            .then(data => {
+                const { ip, city, region, country, loc } = data;
 
-                    // Fetch additional info (location, city, region) using ipinfo.io
-                    return fetch(`https://ipinfo.io/${ip}/json?token=YOUR_TOKEN_HERE`);
-                })
-                .then(response => response.json())
-                .then(data => {
-                    const { ip, city, region, country, loc } = data;
+                // Extract latitude and longitude
+                const [latitude, longitude] = loc.split(',');
 
-                    const [latitude, longitude] = loc.split(',');
-
-                    resultDiv.innerHTML = `
-                        <p><span>IP Address:</span> ${ip}</p>
-                        <p><span>City:</span> ${city || 'N/A'}</p>
-                        <p><span>Region:</span> ${region || 'N/A'}</p>
-                        <p><span>Country:</span> ${country || 'N/A'}</p>
-                        <p><span>Location:</span> Latitude: ${latitude}, Longitude: ${longitude}</p>
-                    `;
-                })
-                .catch(error => {
-                    resultDiv.innerHTML = 'Error fetching IP information. Please try again.';
-                    console.error('Error:', error);
-                });
-        }
+                // Display data in the result section
+                const resultDiv = document.getElementById('result');
+                resultDiv.innerHTML = `
+                    <p><span>IP Address:</span> ${ip}</p>
+                    <p><span>City:</span> ${city || 'N/A'}</p>
+                    <p><span>Region:</span> ${region || 'N/A'}</p>
+                    <p><span>Country:</span> ${country || 'N/A'}</p>
+                    <p><span>Location:</span> Latitude: ${latitude}, Longitude: ${longitude}</p>
+                `;
+            })
+            .catch(error => {
+                const resultDiv = document.getElementById('result');
+                resultDiv.innerHTML = 'Error fetching IP information. Please try again.';
+                console.error('Error:', error);
+            });
     </script>
 </body>
 </html>
