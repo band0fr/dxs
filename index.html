@@ -72,8 +72,10 @@
             let url;
             if (isValidURL(query)) {
                 url = query.startsWith('http') ? query : `https://${query}`;
-            } else {
+            } else if (!query.includes(".")) {
                 url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+            } else {
+                url = `https://${query}`;
             }
 
             iframe.src = url;
