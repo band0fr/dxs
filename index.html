@@ -3,36 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Find Your IP Address</title>
+    <title>Your IP Information</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #121212; /* Black background */
-            color: #e0e0e0; /* Light gray text */
+            background-color: #121212;
+            color: #e0e0e0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
         }
         .panel {
-            background-color: #1e1e1e; /* Dark gray panel */
+            background-color: #1e1e1e;
             padding: 30px;
             border-radius: 8px;
-            width: 350px;
+            width: 400px;
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
             text-align: center;
         }
-        input[type="text"] {
-            padding: 10px;
-            width: 90%;
+        h2 {
+            color: #fff;
+        }
+        .info {
             margin: 20px 0;
-            border: none;
-            border-radius: 5px;
-            background-color: #333333; /* Darker gray input background */
-            color: #ffffff; /* White text for the input field */
-            font-size: 1rem;
+            font-size: 1.2rem;
+        }
+        .info span {
+            font-weight: bold;
         }
         button {
             padding: 10px 20px;
@@ -46,43 +46,45 @@
         button:hover {
             background-color: #0056b3;
         }
-        .result {
-            margin-top: 20px;
-            font-size: 1.2rem;
-        }
     </style>
 </head>
 <body>
     <div class="panel">
-        <h2>Find Your Public IP Address</h2>
-        <input type="text" id="userId" placeholder="Enter your Discord User ID (Optional)">
-        <button onclick="findIP()">Find</button>
-        <div class="result" id="result"></div>
+        <h2>Your IP Information</h2>
+        <button onclick="fetchIPInfo()">Get My IP Info</button>
+        <div class="info" id="result"></div>
     </div>
 
     <script>
-        function findIP() {
+        function fetchIPInfo() {
             const resultDiv = document.getElementById('result');
-            const userId = document.getElementById('userId').value;
-            if (userId) {
-                resultDiv.innerText = `You entered Discord User ID: ${userId}\nFinding your IP...`;
-                resultDiv.style.color = "yellow";
-            } else {
-                resultDiv.innerText = `Please enter your Discord User ID for context (optional).`;
-                resultDiv.style.color = "gray";
-            }
+            resultDiv.innerHTML = 'Loading...';
 
-            // Fetch the user's public IP address
+            // Fetch public IP address using ipify
             fetch('https://api.ipify.org?format=json')
                 .then(response => response.json())
                 .then(data => {
-                    const userIP = data.ip;
-                    resultDiv.innerText = `Your public IP address is: ${userIP}`;
-                    resultDiv.style.color = "green";
+                    const ip = data.ip;
+
+                    // Fetch additional info (location, city, region) using ipinfo.io
+                    return fetch(`https://ipinfo.io/${ip}/json?token=YOUR_TOKEN_HERE`);
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const { ip, city, region, country, loc } = data;
+
+                    const [latitude, longitude] = loc.split(',');
+
+                    resultDiv.innerHTML = `
+                        <p><span>IP Address:</span> ${ip}</p>
+                        <p><span>City:</span> ${city || 'N/A'}</p>
+                        <p><span>Region:</span> ${region || 'N/A'}</p>
+                        <p><span>Country:</span> ${country || 'N/A'}</p>
+                        <p><span>Location:</span> Latitude: ${latitude}, Longitude: ${longitude}</p>
+                    `;
                 })
                 .catch(error => {
-                    resultDiv.innerText = "Error fetching your IP address. Please try again.";
-                    resultDiv.style.color = "red";
+                    resultDiv.innerHTML = 'Error fetching IP information. Please try again.';
                     console.error('Error:', error);
                 });
         }
