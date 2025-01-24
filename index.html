@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your IP Information</title>
+    <title>AI Assistant</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -16,64 +16,159 @@
             align-items: center;
             height: 100vh;
         }
-        .panel {
+        .container {
+            width: 80%;
+            max-width: 600px;
             background-color: #1e1e1e;
-            padding: 30px;
             border-radius: 8px;
-            width: 400px;
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+            padding: 20px;
             text-align: center;
         }
         h2 {
             color: #fff;
         }
-        .info {
-            margin: 20px 0;
-            font-size: 1.2rem;
+        #chat-box {
+            height: 300px;
+            overflow-y: scroll;
+            background-color: #2b2b2b;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 15px;
+            color: #fff;
+            font-size: 1rem;
+            display: flex;
+            flex-direction: column;
         }
-        .info span {
-            font-weight: bold;
+        .chat-entry {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-entry p {
+            padding: 8px;
+            border-radius: 6px;
+            background-color: #3a3a3a;
+        }
+        .user-message {
+            background-color: #4e73df;
+        }
+        .ai-message {
+            background-color: #1a8f39;
+        }
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        input[type="file"] {
+            margin-top: 15px;
+            background-color: #444;
+            padding: 10px;
+            border-radius: 6px;
+        }
+        #file-preview {
+            margin-top: 15px;
+            text-align: center;
+            color: #fff;
+        }
+        #file-preview img {
+            max-width: 100%;
+            max-height: 200px;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
-    <div class="panel">
-        <h2>Your IP Information</h2>
-        <div class="info" id="result">Loading your data...</div>
+
+    <div class="container">
+        <h2>AI Assistant</h2>
+        <div id="chat-box"></div>
+        <input type="text" id="user-input" placeholder="Type your message..." />
+        <button onclick="sendMessage()">Send</button>
+        
+        <h3>Upload a File</h3>
+        <input type="file" id="file-input" onchange="previewFile()" />
+        <div id="file-preview"></div>
     </div>
 
     <script>
-        // Fetch public IP address using ipify API
-        fetch('https://api.ipify.org?format=json')
-            .then(response => response.json())
-            .then(data => {
-                const ip = data.ip;
+        // Function to display user message and AI response
+        const chatBox = document.getElementById("chat-box");
 
-                // Fetch additional information (location, city, region, etc.) using ipinfo.io API
-                return fetch(`https://ipinfo.io/${ip}/json?token=YOUR_TOKEN_HERE`);
-            })
-            .then(response => response.json())
-            .then(data => {
-                const { ip, city, region, country, loc } = data;
+        function sendMessage() {
+            const userInput = document.getElementById("user-input").value;
+            if (userInput.trim() === "") return;
 
-                // Extract latitude and longitude
-                const [latitude, longitude] = loc.split(',');
+            // Display user message
+            const userMessageDiv = document.createElement("div");
+            userMessageDiv.classList.add("chat-entry");
+            userMessageDiv.innerHTML = `<p class="user-message">${userInput}</p>`;
+            chatBox.appendChild(userMessageDiv);
 
-                // Display data in the result section
-                const resultDiv = document.getElementById('result');
-                resultDiv.innerHTML = `
-                    <p><span>IP Address:</span> ${ip}</p>
-                    <p><span>City:</span> ${city || 'N/A'}</p>
-                    <p><span>Region:</span> ${region || 'N/A'}</p>
-                    <p><span>Country:</span> ${country || 'N/A'}</p>
-                    <p><span>Location:</span> Latitude: ${latitude}, Longitude: ${longitude}</p>
-                `;
-            })
-            .catch(error => {
-                const resultDiv = document.getElementById('result');
-                resultDiv.innerHTML = 'Error fetching IP information. Please try again.';
-                console.error('Error:', error);
-            });
+            // Display AI response
+            const aiMessageDiv = document.createElement("div");
+            aiMessageDiv.classList.add("chat-entry");
+            aiMessageDiv.innerHTML = `<p class="ai-message">AI is typing...</p>`;
+            chatBox.appendChild(aiMessageDiv);
+
+            // Scroll to the bottom of the chat
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Call AI function
+            setTimeout(() => {
+                aiResponse(userInput);
+            }, 1000);
+        }
+
+        // Simulate AI response
+        function aiResponse(userInput) {
+            const aiMessageDiv = chatBox.lastElementChild;
+            aiMessageDiv.innerHTML = `<p class="ai-message">This is an automated response to: "${userInput}"</p>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // File upload and preview function
+        function previewFile() {
+            const fileInput = document.getElementById("file-input");
+            const filePreview = document.getElementById("file-preview");
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onloadend = function () {
+                    if (file.type.startsWith('image/')) {
+                        const img = document.createElement("img");
+                        img.src = reader.result;
+                        filePreview.innerHTML = "<h4>Preview:</h4>";
+                        filePreview.appendChild(img);
+                    } else {
+                        filePreview.innerHTML = `<p>File Uploaded: ${file.name}</p>`;
+                    }
+                }
+
+                if (file) {
+                    reader.readAsDataURL(file);
+                }
+            }
+        }
     </script>
+
 </body>
 </html>
